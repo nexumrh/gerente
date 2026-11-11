@@ -102,7 +102,7 @@ footer{background:var(--navy);color:#9FB0D6;padding:40px 0;font-size:14px}footer
     <div><i>💬</i><h3>Atendimento no chat</h3><p>Assistente que resolve faturas, aparelho bloqueado e dúvidas a qualquer hora.</p></div>
   </div></div></section>
 
-<section id="planos"><div class="wrap"><div class="sec-h"><small>Planos</small><h2>Pague por loja, sem surpresa</h2><p>A mensalidade é o valor do plano vezes o número de lojas. Cancele quando quiser.</p></div>
+<section id="planos"><div class="wrap"><div class="sec-h"><small>Preços</small><h2>Mensalidade simples + licenças por venda</h2><p>Você paga uma mensalidade por loja e compra licenças conforme vende. Cancele quando quiser.</p></div>
   <div class="planos" id="planosBox"></div><p class="nota" id="planosNota"></p></div></section>
 
 <section id="cadastro" class="alt"><div class="wrap"><div class="sec-h"><small>Cadastro</small><h2>Cadastre sua empresa, a matriz e as filiais</h2><p>Leva uns 5 minutos. Depois da aprovação, cada gerente recebe o login por e-mail.</p></div>
@@ -118,6 +118,7 @@ footer{background:var(--navy);color:#9FB0D6;padding:40px 0;font-size:14px}footer
     <details><summary>Como funciona a trava?</summary><p>Na entrega, o celular é configurado pelo QR code com o app da NexumCell. Em caso de atraso, o aparelho primeiro mostra avisos, depois limita aplicativos e por fim bloqueia. Ao pagar pelo PIX do app, libera sozinho.</p></details>
     <details><summary>Posso cadastrar várias lojas?</summary><p>Sim. Cadastre a matriz e as filiais de uma vez, cada uma com o seu gerente. Depois da aprovação, você pode adicionar filiais novas aqui mesmo, em “Acompanhar cadastro”.</p></details>
     <details><summary>Quem cria o login dos gerentes e vendedores?</summary><p>A NexumCell. Ela aprova cada gerente e cada vendedor e envia o ID e a senha por e-mail. Assim só entra quem foi conferido.</p></details>
+    <details><summary>O que são as licenças?</summary><p>Além da mensalidade, você compra licenças. Cada celular vendido usa 1 licença; se o parcelamento passar de 12 vezes, usa 2. A licença vale pelo contrato inteiro, sem cobrança por parcela.</p></details>
     <details><summary>Como pago a mensalidade?</summary><p>Depois da aprovação, você recebe por e-mail a cobrança mensal (boleto, PIX ou cartão). Atrasos longos suspendem o acesso das lojas até o pagamento; os contratos dos clientes continuam valendo.</p></details>
   </div></div></section>
 
@@ -132,16 +133,18 @@ if(MODO_DEMO) document.body.insertAdjacentHTML('beforeend','<div class="demo">Mo
 $('#ano').textContent=new Date().getFullYear();
 function cpfOk(c){ c=dig(c); if(c.length!==11||/^(\d)\1+$/.test(c)) return false; for(const t of [9,10]){ let s=0; for(let i=0;i<t;i++) s+=+c[i]*(t+1-i); if((s*10)%11%10!==+c[t]) return false; } return true; }
 function cnpjOk(c){ c=dig(c); if(c.length!==14||/^(\d)\1+$/.test(c)) return false; const calc=n=>{ const w=n===12?[5,4,3,2,9,8,7,6,5,4,3,2]:[6,5,4,3,2,9,8,7,6,5,4,3,2]; const s=w.reduce((a,x,i)=>a+x*+c[i],0)%11; return s<2?0:11-s; }; return calc(12)===+c[12]&&calc(13)===+c[13]; }
-const PLANOS_PADRAO=[{id:'START',nome:'Start',porLoja:199,itens:['Crediário com trava do aparelho','Análise de crédito pela NexumCell','Cobrança automática por PIX','Até 3 vendedores por loja']},
+const PLANOS_PADRAO=[{id:'NEXUM',nome:'NexumCell',porLoja:79.99,itens:['Sistema completo com a trava do aparelho','Análise de crédito, contrato e cobrança','Portais do dono, gerente e vendedor','App do cliente e treinamento em vídeo']}];
+const _DESCARTE=[{id:'START',nome:'Start',porLoja:199,itens:['Crediário com trava do aparelho','Análise de crédito pela NexumCell','Cobrança automática por PIX','Até 3 vendedores por loja']},
   {id:'PRO',nome:'Pro',porLoja:349,destaque:true,itens:['Tudo do Start','Vendedores ilimitados','Comissões com comprovante','Painel da TV e metas','Suporte prioritário no chat']},
   {id:'REDE',nome:'Rede',porLoja:299,minimoLojas:3,itens:['Tudo do Pro','A partir de 3 lojas','Relatórios da rede','Gerente de conta']}];
+const LICENCA_PADRAO=54.99;
 /* ---- demonstração: grava no mesmo banco de exemplo do Painel do Dono (?demo) ---- */
 const DK='nexumcell_demo_v1';
 function demoDb(){ try{ return JSON.parse(localStorage.getItem(DK))||{}; }catch(e){ return {}; } }
 function demoSalvar(d){ try{ localStorage.setItem(DK,JSON.stringify(d)); }catch(e){} }
 async function api(corpo){
   if(MODO_DEMO){ await new Promise(r=>setTimeout(r,500)); const d=demoDb(); d.solicitacoesLoja=d.solicitacoesLoja||{}; const S=d.solicitacoesLoja;
-    if(corpo.acao==='planos') return {planos:(d.config?.sistema?.planosLojas)||PLANOS_PADRAO,adesao:+(d.config?.sistema?.saasAdesao)||0,diasTeste:+(d.config?.sistema?.saasDiasTeste??7)};
+    if(corpo.acao==='planos') return {licenca:+(d.config?.sistema?.saasLicencaValor)||LICENCA_PADRAO,planos:(d.config?.sistema?.planosLojas)||PLANOS_PADRAO,adesao:+(d.config?.sistema?.saasAdesao)||0,diasTeste:+(d.config?.sistema?.saasDiasTeste??7)};
     if(corpo.acao==='enviar'){ const c=dig(corpo.empresa.cnpj), id='cnpj_'+c; if(S[id]&&['PENDENTE','APROVADA'].includes(S[id].status)) throw new Error('Já recebemos o cadastro desta empresa.');
       const P=(d.config?.sistema?.planosLojas)||PLANOS_PADRAO, pl=P.find(p=>p.id===corpo.plano)||P[0];
       S[id]={tipo:'EMPRESA',...corpo.empresa,cnpj:c,respCpf:dig(corpo.empresa.respCpf),respTelefone:dig(corpo.empresa.respTelefone),telefone:dig(corpo.empresa.telefone),respEmail:corpo.empresa.respEmail.toLowerCase(),plano:pl.id,planoNome:pl.nome,porLoja:pl.porLoja,mensalidade:pl.porLoja*corpo.lojas.length,
@@ -157,11 +160,15 @@ async function api(corpo){
   const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.erro||('Erro '+r.status)); return j;
 }
 /* ---- planos ---- */
-let P={planos:PLANOS_PADRAO,adesao:0,diasTeste:7};
+let P={planos:PLANOS_PADRAO,adesao:0,diasTeste:7,licenca:LICENCA_PADRAO};
 function desenharPlanos(){
-  $('#planosBox').innerHTML=P.planos.map(p=>`<div class="plano ${p.destaque?'dest':''}"><h3>${esc(p.nome)}</h3><div class="pr">${brl(p.porLoja)}<small> /loja por mês</small></div><div class="min">${p.minimoLojas?`a partir de ${p.minimoLojas} lojas`:''}</div>
-    <ul>${(p.itens||[]).map(i=>`<li>${esc(i)}</li>`).join('')}</ul><a class="btn ${p.destaque?'':'sec'}" href="#cadastro" data-plano="${esc(p.id)}">Escolher ${esc(p.nome)}</a></div>`).join('');
-  $('#planosNota').textContent=[P.diasTeste?`${P.diasTeste} dias para começar antes da 1ª mensalidade.`:'',P.adesao?`Taxa de adesão única de ${brl(P.adesao)}.`:'Sem taxa de adesão.'].filter(Boolean).join(' ');
+  const pl=P.planos[0]||{nome:'NexumCell',porLoja:79.99,itens:[]}, lic=+P.licenca||LICENCA_PADRAO;
+  document.getElementById('planosBox').innerHTML=`<div class="plano dest"><h3>Mensalidade</h3><div class="pr">${brl(pl.porLoja)}<small> /loja por mês</small></div><div class="min">acesso ao sistema completo</div>
+    <ul>${(pl.itens||[]).map(i=>`<li>${esc(i)}</li>`).join('')}</ul><a class="btn" href="#cadastro" data-plano="${esc(pl.id||'NEXUM')}">Começar agora</a></div>
+    <div class="plano"><h3>Licença por venda</h3><div class="pr">${brl(lic)}<small> /licença</small></div><div class="min">você compra conforme vende</div>
+    <ul><li>Cada celular vendido usa <b>1 licença</b></li><li><b>2 licenças</b> se o parcelamento passar de 12 vezes</li><li>Compre o pacote de licenças quando precisar</li><li>A licença vale pelo contrato inteiro, sem cobrança por parcela</li></ul>
+    <a class="btn sec" href="#cadastro">Cadastrar a loja</a></div>`;
+  document.getElementById('planosNota').textContent=`Exemplo: uma loja que vende 40 celulares no mês (até 12x) usa 40 licenças — ${brl(pl.porLoja)} de mensalidade + 40 × ${brl(lic)}. ${P.diasTeste?P.diasTeste+' dias para começar antes da 1ª mensalidade. ':''}${P.adesao?'Taxa de adesão única de '+brl(P.adesao)+'.':'Sem taxa de adesão.'}`;
 }
 api({acao:'planos'}).then(j=>{ if(j?.planos?.length) P=j; desenharPlanos(); F.plano=F.plano||(P.planos.find(p=>p.destaque)||P.planos[0]).id; if(F.etapa===3) render(); }).catch(()=>desenharPlanos());
 desenharPlanos();
@@ -187,7 +194,7 @@ function render(){
   if(F.etapa===2) b=`<h3>Lojas e gerentes</h3><p class="d">Cadastre a matriz e as filiais. Cada loja tem um gerente, que recebe o próprio login depois da aprovação.</p>${F.lojas.map(cardLoja).join('')}
     <button class="btn sec" data-add>+ Adicionar filial</button>`;
   if(F.etapa===3) b=`<h3>Escolha o plano</h3><p class="d">O valor é por loja. Você tem ${n} loja(s).</p><div class="op">${P.planos.map(p=>`<label class="${F.plano===p.id?'on':''}"><input type="radio" name="pl" value="${esc(p.id)}" ${F.plano===p.id?'checked':''}><b>${esc(p.nome)}</b><span>${brl(p.porLoja)} por loja/mês${p.minimoLojas?` · mín. ${p.minimoLojas} lojas`:''}</span></label>`).join('')}</div>
-    <div class="resumo"><div><span>${n} loja(s) × ${brl(pl.porLoja)}</span><b>${brl(pl.porLoja*n)}/mês</b></div>${P.adesao?`<div><span>Adesão (uma vez)</span><b>${brl(P.adesao)}</b></div>`:''}${P.diasTeste?`<div><span>Primeira mensalidade</span><b>em ${P.diasTeste} dias após a aprovação</b></div>`:''}<div class="tot"><span>Mensalidade</span><span>${brl(pl.porLoja*n)}</span></div></div>`;
+    <div class="resumo"><div><span>${n} loja(s) × ${brl(pl.porLoja)} de mensalidade</span><b>${brl(pl.porLoja*n)}/mês</b></div><div><span>Licença por venda</span><b>${brl(+P.licenca||LICENCA_PADRAO)} cada</b></div>${P.adesao?`<div><span>Adesão (uma vez)</span><b>${brl(P.adesao)}</b></div>`:''}${P.diasTeste?`<div><span>Primeira mensalidade</span><b>em ${P.diasTeste} dias após a aprovação</b></div>`:''}<div class="tot"><span>Mensalidade</span><span>${brl(pl.porLoja*n)}</span></div></div>`;
   if(F.etapa===4) b=`<h3>Confira e envie</h3><p class="d">Depois de enviar, a NexumCell confere os dados e libera o login de cada gerente.</p>
     <table class="u"><tr><th>Empresa</th><td>${esc(e.fantasia)} · ${esc(e.razao)} · CNPJ ${esc(e.cnpj)}</td></tr><tr><th>Responsável</th><td>${esc(e.respNome)} · ${esc(e.respEmail)}</td></tr><tr><th>Plano</th><td>${esc(pl.nome)} · ${brl(pl.porLoja*n)}/mês</td></tr>
     ${F.lojas.map((l,i)=>`<tr><th>${i?'Filial '+i:'Matriz'}</th><td>${esc(l.nome)} · ${esc(l.cidade)}${l.uf?'/'+esc(l.uf):''}<br><small style="color:var(--mut)">Gerente: ${esc(l.gerente.nome)} · ${esc(l.gerente.email)}</small></td></tr>`).join('')}</table>
