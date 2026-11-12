@@ -19,17 +19,20 @@ header.top{position:sticky;top:0;z-index:20;background:rgba(10,23,51,.96);backdr
 header.top .wrap{display:flex;align-items:center;gap:22px;height:68px}header.top img{height:30px}
 header.top nav{display:flex;gap:20px;margin-left:auto;font-size:15px}header.top nav a{color:#C9D4F0}header.top nav a:hover{color:#fff}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:13px 20px;font:inherit;font-weight:700;cursor:pointer;background:var(--blue);color:#fff;transition:transform .15s,background .15s}
-.btn:hover{background:var(--blue2);transform:translateY(-1px)}.btn.sec{background:#fff;color:var(--blue);border:1.5px solid var(--blue)}.btn.sm{padding:9px 14px;font-size:14px;border-radius:10px}.btn.ghost{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.4)}
+.btn:hover{background:var(--blue2);transform:translateY(-1px)}.btn.sec{background:#fff;color:var(--blue);border:1.5px solid var(--blue)}.btn.sm{padding:9px 14px;font-size:14px;border-radius:10px}.btn.ghost{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.4)}.btn.wa2{background:#1FA855;color:#fff}.btn.wa2:hover{background:#188a45}
 .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
 .hero{background:radial-gradient(1200px 500px at 85% -10%,#2C5BD6 0%,transparent 60%),linear-gradient(160deg,#0A1733 0%,#102454 100%);color:#fff;padding:72px 0 84px;overflow:hidden}
 .hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
 .tag{display:inline-block;background:rgba(59,123,255,.18);color:#AFC7FF;border:1px solid rgba(59,123,255,.4);border-radius:99px;padding:5px 12px;font-size:13px;font-weight:600;letter-spacing:.02em}
 .hero h1{font-size:clamp(32px,4.6vw,52px);line-height:1.08;margin:16px 0 18px;letter-spacing:-.02em}.hero h1 em{font-style:normal;color:#7FA6FF}
 .hero p.lead{font-size:19px;color:#C9D4F0;max-width:560px;margin:0 0 28px}.hero .ctas{display:flex;gap:12px;flex-wrap:wrap}
-.hero ul.ok{list-style:none;padding:0;margin:26px 0 0;display:flex;flex-wrap:wrap;gap:10px 22px;color:#C9D4F0;font-size:15px}.hero ul.ok li::before{content:"✓";color:#5CE0A5;font-weight:800;margin-right:7px}
-.fone{justify-self:center;width:290px;height:560px;border-radius:44px;background:#0B1328;border:10px solid #1D2A4D;box-shadow:0 40px 90px rgba(0,0,0,.45);position:relative;padding:22px 18px;display:flex;flex-direction:column;gap:12px}
+.hero .reassure{margin:18px 0 0;color:#9FB0D6;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.hero .reassure b{color:#C9D4F0}
+.hero ul.ok{list-style:none;padding:0;margin:18px 0 0;display:flex;flex-wrap:wrap;gap:10px 22px;color:#C9D4F0;font-size:15px}.hero ul.ok li::before{content:"✓";color:#5CE0A5;font-weight:800;margin-right:7px}
+.fone-wrap{position:relative;justify-self:center}.fone-wrap::before{content:"";position:absolute;inset:-40px;background:radial-gradient(closest-side,rgba(59,123,255,.35),transparent 70%);filter:blur(10px);z-index:0}
+.fone{position:relative;z-index:1;justify-self:center;width:290px;height:560px;border-radius:44px;background:#0B1328;border:10px solid #1D2A4D;box-shadow:0 40px 90px rgba(0,0,0,.45);position:relative;padding:22px 18px;display:flex;flex-direction:column;gap:12px}
 .fone::before{content:"";position:absolute;top:10px;left:50%;transform:translateX(-50%);width:90px;height:22px;border-radius:12px;background:#1D2A4D}
-.fone .lk{margin-top:34px;text-align:center}.fone .lk b{display:block;font-size:20px}.fone .lk span{color:#9FB0D6;font-size:13px}
+.fone .appbar{display:flex;align-items:center;gap:8px;color:#9FB0D6;font-size:12px;font-weight:700;letter-spacing:.04em;padding-bottom:4px;border-bottom:1px solid #1D2A4D}.fone .appbar .dot{width:7px;height:7px;border-radius:50%;background:#FBBF24;box-shadow:0 0 8px #FBBF24}
+.fone .lk{margin-top:18px;text-align:center}.fone .lk b{display:block;font-size:20px}.fone .lk span{color:#9FB0D6;font-size:13px}
 .fone .cad{width:72px;height:72px;border-radius:50%;margin:0 auto 14px;background:linear-gradient(135deg,#1F5FE8,#7FA6FF);display:flex;align-items:center;justify-content:center;font-size:32px}
 .fone .fat{background:#13203F;border-radius:14px;padding:12px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center}.fone .fat b{font-size:15px}
 .fone .pix{margin-top:auto;background:#1F5FE8;border-radius:14px;text-align:center;padding:13px;font-weight:700}
@@ -109,11 +112,12 @@ svg.i{width:24px;height:24px;flex:none;stroke:currentColor;fill:none;stroke-widt
   <div><span class="tag">Crediário de celular para lojas</span>
     <h1>Venda celular parcelado <em>sem ficar com o risco.</em></h1>
     <p class="lead">A NexumCell analisa o crédito do seu cliente, cobra as parcelas por PIX e trava o aparelho se ele não pagar. Você vende mais e recebe pelo aparelho.</p>
-    <div class="ctas"><a class="btn" href="#cadastro">Cadastrar minha loja e filiais</a><a class="btn ghost" href="#como">Ver como funciona</a></div>
+    <div class="ctas"><a class="btn" href="#cadastro">Cadastrar minha loja e filiais</a><a class="btn ghost" href="#como">Ver como funciona</a><a class="btn wa2" id="waHero" href="#"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1 0 12 2zm0 2a8 8 0 0 1 0 16 8 8 0 0 1-4-1.1l-.3-.2-2.8.8.8-2.8-.2-.3A8 8 0 0 1 12 4zm4.4 10.1c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 0 1-3.2-2.8c-.1-.2 0-.4.1-.5l.4-.5c.1-.2.1-.3 0-.5l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.5.1-.7.3-.8.8-1 1.9-.6 3.1a9 9 0 0 0 3.7 4.2c1.9 1 2.6.9 3.5.8.6-.1 1.4-.6 1.6-1.2.2-.6.2-1.1.1-1.2l-.4-.3z"/></svg>WhatsApp</a></div>
+    <div class="reassure"><b>7 dias grátis</b> · sem taxa de adesão · cancele quando quiser</div>
     <ul class="ok"><li>Análise de crédito na hora</li><li>Trava do aparelho por app</li><li>Cobrança automática</li><li>Matriz e filiais no mesmo plano</li></ul></div>
-  <div class="fone" aria-hidden="true"><div class="lk"><div class="cad"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div><b>Aparelho bloqueado</b><span>Parcela 3/12 em atraso</span></div>
+  <div class="fone-wrap"><div class="fone" aria-hidden="true"><div class="appbar"><span class="dot"></span>NexumCell · aparelho do cliente</div><div class="lk"><div class="cad"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div><b>Aparelho bloqueado</b><span>Parcela 3/12 em atraso</span></div>
     <div class="fat"><span>Parcela 3/12<br><small style="color:#9FB0D6">venceu 05/11</small></span><b>R$ 104,90</b></div><div class="fat"><span>Parcela 4/12<br><small style="color:#9FB0D6">vence 05/12</small></span><b>R$ 99,90</b></div>
-    <div class="pix">Pagar agora com PIX</div></div>
+    <div class="pix">Pagar agora com PIX</div></div></div>
 </div></section>
 
 <section class="strip" style="padding:0"><div class="wrap">
@@ -202,7 +206,8 @@ const MODO_DEMO=DEMO||!SERV.startsWith('https://');
 if(MODO_DEMO) document.body.insertAdjacentHTML('beforeend','<div class="demo">Modo demonstração</div>');
 $('#ano').textContent=new Date().getFullYear();
 // WhatsApp: usa o número em window.NEXUMCELL_WHATS (só dígitos, com DDI 55). Sem número, o botão leva ao cadastro.
-(function(){ var el=$('#waLink'); if(!el) return; var w=String(window.NEXUMCELL_WHATS||'').replace(/\D/g,'');
+(function(){ var w=String(window.NEXUMCELL_WHATS||'').replace(/\D/g,''), h=$('#waHero'); if(h){ if(w) h.href='https://wa.me/'+w+'?text='+encodeURIComponent('Olá! Quero vender no crediário com a NexumCell.'); else h.style.display='none'; }
+  var el=$('#waLink'); if(!el) return; 
   if(w){ el.href='https://wa.me/'+w+'?text='+encodeURIComponent('Olá! Quero vender no crediário com a NexumCell.'); }
   else { el.href='#cadastro'; el.removeAttribute('target'); el.innerHTML=el.innerHTML.replace('Falar no WhatsApp','Cadastrar minha loja'); } })();
 function cpfOk(c){ c=dig(c); if(c.length!==11||/^(\d)\1+$/.test(c)) return false; for(const t of [9,10]){ let s=0; for(let i=0;i<t;i++) s+=+c[i]*(t+1-i); if((s*10)%11%10!==+c[t]) return false; } return true; }
