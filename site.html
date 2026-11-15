@@ -140,6 +140,26 @@ svg.i{width:24px;height:24px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .regra{background:#EEF4FF;color:#1E3A8A;border-radius:12px;padding:12px 16px;font-size:14px;margin-bottom:16px}
 .st.INCOMPLETO{background:#EEF4FF;color:#1E3A8A}.st.EM_ANALISE{background:#EAF1FF;color:var(--blue)}.st.BLOQUEADA,.st.INATIVA{background:#EEF0F4;color:#4B5568}
 @media(max-width:700px){.fotos{grid-template-columns:1fr 1fr}.g4{grid-template-columns:1fr 1fr}}
+/* chat de vendas */
+.vc-btn{position:fixed;bottom:20px;right:20px;z-index:50;background:var(--blue);color:#fff;border:0;border-radius:30px;padding:13px 19px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 10px 30px rgba(31,95,232,.4);display:flex;align-items:center;gap:8px}
+.vc-box{position:fixed;bottom:20px;right:20px;z-index:51;width:344px;max-width:calc(100vw - 24px);background:#fff;border-radius:18px;box-shadow:0 24px 60px rgba(10,23,51,.3);overflow:hidden;display:none;flex-direction:column}
+.vc-box.on{display:flex}
+.vc-hd{background:var(--navy);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.vc-hd b{font-size:15px}.vc-hd small{color:#9FB0D6;font-size:12px;display:block}
+.vc-hd button{background:none;border:0;color:#fff;font-size:22px;cursor:pointer;line-height:1}
+.vc-body{padding:14px;height:300px;overflow-y:auto;background:var(--soft);display:flex;flex-direction:column;gap:8px}
+.vc-msg{max-width:85%;padding:9px 12px;border-radius:12px;font-size:13.5px;line-height:1.4}
+.vc-msg.bot{background:#fff;border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:3px}
+.vc-msg.user{background:var(--navy);color:#fff;align-self:flex-end;border-bottom-right-radius:3px}
+.vc-opts{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px;background:var(--soft)}
+.vc-opts button{border:1px solid var(--blue);background:#fff;color:var(--blue);border-radius:16px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+.vc-foot{padding:10px 14px;border-top:1px solid var(--line);display:flex;gap:8px}
+.vc-foot input{flex:1;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font:inherit;font-size:14px}
+.vc-foot button{background:var(--blue);color:#fff;border:0;border-radius:10px;padding:0 14px;font-weight:700;cursor:pointer}
+.vc-form{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px;align-self:stretch}
+.vc-form input{width:100%;border:1px solid var(--line);border-radius:9px;padding:9px 10px;font:inherit;font-size:13.5px;margin-top:6px}
+.vc-form button{width:100%;background:var(--blue);color:#fff;border:0;border-radius:9px;padding:10px;font:inherit;font-weight:700;cursor:pointer;margin-top:9px}
+
 </style>
 </head>
 <body>
@@ -543,5 +563,45 @@ document.addEventListener('change',async e=>{ if(!e.target.closest('#acFil')) re
 <script>(function(){const $=i=>document.getElementById(i);const f=v=>'R$ '+Math.round(v).toLocaleString('pt-BR');
 function c(){const q=+$('cQ').value||0,v=+$('cV').value||0,p=+$('cP').value||0;$('cPt').textContent=p+'%';const un=Math.round(q*p/100);$('cUn').textContent=un;$('cMes').textContent=f(un*v);$('cAno').textContent=f(un*v*12);}
 ['cQ','cV','cP'].forEach(i=>$(i).addEventListener('input',c));c();})();</script>
+<button class="vc-btn" id="vcBtn" onclick="vcToggle()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Falar com vendas</button>
+<div class="vc-box" id="vcBox">
+  <div class="vc-hd"><div><b>Vendas NexumCell</b><small>Tire suas dúvidas — a gente te chama no WhatsApp</small></div><button onclick="vcToggle()" aria-label="Fechar">×</button></div>
+  <div class="vc-body" id="vcBody"></div>
+  <div class="vc-opts" id="vcOpts"></div>
+  <div class="vc-foot"><input id="vcIn" placeholder="Escreva sua mensagem..." onkeydown="if(event.key==='Enter')vcEnviar()"><button onclick="vcEnviar()">Enviar</button></div>
+</div>
+<script>
+(function(){
+  var aberto=false, dadosMsg='';
+  window.vcToggle=function(){ aberto=!aberto; document.getElementById('vcBox').classList.toggle('on',aberto); document.getElementById('vcBtn').style.display=aberto?'none':'flex'; if(aberto&&!document.getElementById('vcBody').children.length) vcInicio(); };
+  function body(){ return document.getElementById('vcBody'); }
+  function bot(t){ var d=document.createElement('div'); d.className='vc-msg bot'; d.innerHTML=t; body().appendChild(d); body().scrollTop=body().scrollHeight; }
+  function user(t){ var d=document.createElement('div'); d.className='vc-msg user'; d.textContent=t; body().appendChild(d); body().scrollTop=body().scrollHeight; }
+  function opts(arr){ var o=document.getElementById('vcOpts'); o.innerHTML=''; arr.forEach(function(x){ var b=document.createElement('button'); b.textContent=x[0]; b.onclick=x[1]; o.appendChild(b); }); }
+  function vcInicio(){ bot('Olá! Aqui é o time de vendas da NexumCell. Como podemos ajudar a sua loja?'); opts([['Como funciona',function(){resp('como');}],['Quanto custa',function(){resp('custo');}],['Quero ser parceiro',function(){resp('form');}]]); }
+  function resp(k){
+    if(k==='como'){ user('Como funciona?'); setTimeout(function(){ bot('Sua loja financia o cliente na hora. A gente dá os sistemas (vendedor, gerente, dono e app do cliente) e a trava que protege o aparelho contra o calote. A carteira e os juros ficam com você.'); opts([['Quanto custa',function(){resp('custo');}],['Quero ser parceiro',function(){resp('form');}]]); },350); }
+    else if(k==='custo'){ user('Quanto custa?'); setTimeout(function(){ bot('Tem mensalidade por loja e licença por venda, com dias para começar antes da 1ª cobrança. Role até <b>Planos</b> para os valores — ou deixe seu contato que um consultor te explica.'); opts([['Deixar meu contato',function(){resp('form');}]]); },350); }
+    else if(k==='form'){ user('Quero ser parceiro'); setTimeout(function(){ bot('Perfeito! Deixe seus dados que a gente te chama no WhatsApp hoje:'); mostrarForm(); opts([]); },300); }
+  }
+  function mostrarForm(){
+    var d=document.createElement('div'); d.className='vc-form';
+    d.innerHTML='<input id="vcLoja" placeholder="Nome da loja"><input id="vcNome" placeholder="Seu nome"><input id="vcCidade" placeholder="Cidade / UF"><input id="vcWa" placeholder="WhatsApp" inputmode="tel"><button type="button" id="vcEnv">Quero receber contato</button>';
+    body().appendChild(d); body().scrollTop=body().scrollHeight;
+    document.getElementById('vcEnv').onclick=enviarLead;
+  }
+  function enviarLead(){
+    var loja=(document.getElementById('vcLoja')||{}).value||'', nome=(document.getElementById('vcNome')||{}).value||'', cidade=(document.getElementById('vcCidade')||{}).value||'', wa=(document.getElementById('vcWa')||{}).value||'';
+    if(!wa.replace(/\D/g,'') && !loja){ alert('Informe pelo menos o nome da loja e o WhatsApp.'); return; }
+    var btn=document.getElementById('vcEnv'); if(btn){ btn.disabled=true; btn.textContent='Enviando...'; }
+    var corpo={nome:nome,loja:loja,cidade:cidade,whatsapp:wa,mensagem:dadosMsg,origem:'chat do site'};
+    var fim=function(){ var f=document.querySelector('.vc-form'); if(f) f.remove(); bot('Recebemos seu contato! ✅ Um consultor da NexumCell vai te chamar no WhatsApp. Obrigado!'); opts([]); };
+    if(typeof SERV!=='undefined' && SERV){ fetch(SERV+'/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(corpo)}).then(function(r){return r.json();}).then(fim).catch(function(){ fim(); }); }
+    else { setTimeout(fim,400); }
+  }
+  window.vcEnviar=function(){ var i=document.getElementById('vcIn'); if(!i.value.trim()) return; user(i.value.trim()); dadosMsg=i.value.trim(); i.value=''; setTimeout(function(){ bot('Anotado! Para a gente te responder, deixe seu contato:'); if(!document.querySelector('.vc-form')) mostrarForm(); opts([]); },400); };
+})();
+</script>
+
 </body>
 </html>
