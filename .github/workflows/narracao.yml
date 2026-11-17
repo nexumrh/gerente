@@ -1,0 +1,16 @@
+name: narracao-video
+on:
+  push:
+    branches: [narracao-video]
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -q && sudo apt-get install -y -q ffmpeg
+      - run: pip install edge-tts
+      - run: python .github/narracao.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: video-narrado
+          path: saida.mp4
