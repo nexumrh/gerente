@@ -10749,6 +10749,63 @@ async function acFaixa(){
 }
 { const _r=render; render=async(...a)=>{ const r=await _r(...a); if(['inicio','painel'].includes(S.tab)) acFaixa(); return r; }; }
 
+/* ===================== APP DO GERENTE NO CELULAR: barra inferior, ações rápidas e instalação (nov/2026) ===================== */
+(function () {
+  if (PORTAL !== 'gerente') return;
+  const css = document.createElement('style'); css.textContent = `
+  #mbar{display:none}
+  @media(max-width:820px){
+    #mbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:60;background:#fff;border-top:1px solid #E3E7F0;padding:6px 4px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -6px 20px rgba(10,23,51,.06)}
+    #mbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font:600 11px inherit;color:#6B7390;padding:4px 0;position:relative;cursor:pointer}
+    #mbar button svg{width:22px;height:22px}#mbar button.on{color:#0A1733}#mbar button.on svg{color:#1A5CFF}
+    #mbar .mais{color:#0A1733}#mbar .mais span.c{width:44px;height:44px;margin-top:-22px;border-radius:50%;background:#E2B33B;display:grid;place-items:center;box-shadow:0 8px 18px rgba(226,179,59,.45);color:#0A1733}
+    #mbar .b{position:absolute;top:0;right:calc(50% - 20px);min-width:16px;height:16px;border-radius:8px;background:#C23B3B;color:#fff;font-size:10px;line-height:16px;padding:0 4px}
+    #view{padding-bottom:96px!important}
+    #atB{bottom:calc(82px + env(safe-area-inset-bottom))!important;right:14px!important;width:50px!important;height:50px!important}
+    #mbar button{white-space:nowrap}
+    #atP{bottom:calc(142px + env(safe-area-inset-bottom))!important;height:min(560px,calc(100vh - 190px))!important}
+    #qa{position:fixed;inset:0;z-index:70;background:rgba(10,23,51,.45);display:flex;align-items:flex-end}
+    #qa .sh{background:#fff;width:100%;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+    #qa .gq{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+    #qa .gq button{border:1px solid #E3E7F0;background:#F7F8FB;border-radius:16px;padding:14px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;font:600 12px inherit;color:#0A1733;cursor:pointer}
+    #qa .gq svg{width:22px;height:22px;color:#1A5CFF}
+  }
+  #instB{position:fixed;left:12px;right:12px;bottom:calc(78px + env(safe-area-inset-bottom));z-index:61;background:#0A1733;color:#fff;border-radius:16px;padding:12px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 14px 30px rgba(10,23,51,.3);font-size:13px}
+  #instB b{display:block;font-size:14px}#instB button{border:0;border-radius:10px;padding:9px 12px;font:700 13px inherit;cursor:pointer}#instB .s{background:#E2B33B;color:#0A1733}#instB .x{background:transparent;color:#fff;opacity:.7}
+  @media(min-width:821px){#instB{display:none}}`;
+  document.head.appendChild(css);
+  const ic = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+  const ICS = { painel: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>', vendas: '<path d="M3 3h2l2.4 12.2a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.6L21 7H6"/><circle cx="10" cy="20" r="1"/><circle cx="18" cy="20" r="1"/>', mais: '<path d="M12 5v14M5 12h14"/>', pre: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15l2 2 4-4"/>', menu: '<path d="M4 6h16M4 12h16M4 18h16"/>', sim: '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M14 10h2M8 14h2M14 14h2M8 18h2M14 18h2"/>', caixa: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>', fila: '<path d="M3 6h13M3 12h9M3 18h6"/><circle cx="18" cy="17" r="4"/>', emp: '<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>', estoque: '<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>', despesa: '<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>', aviso: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>' };
+  const tem = t => (typeof minhasAbas === 'function' ? minhasAbas().some(x => x.id === t) : true) && PAGES[t];
+  const ir = t => { if (!tem(t)) return toast('Sem acesso a esta tela', 'err'); S.tab = t; try { history.replaceState(null, '', '#' + t); } catch (e) { } render(); };
+  const bar = document.createElement('nav'); bar.id = 'mbar'; document.body.appendChild(bar);
+  let pend = {};
+  function pintar() { bar.style.display = S.me ? '' : 'none'; const it = [['painel', 'Painel', ICS.painel], ['preanalises', 'Pré-análise', ICS.pre, pend.preanalises], ['mais', 'Ação', ICS.mais], ['vendas', 'Vendas', ICS.vendas, pend.pedidos], ['menu', 'Menu', ICS.menu]];
+    bar.innerHTML = it.map(([id, n, svg, b]) => id === 'mais' ? `<button class="mais" data-mb="mais" aria-label="Ações rápidas"><span class="c">${ic(svg)}</span>${n}</button>` : `<button data-mb="${id}" class="${S.tab === id ? 'on' : ''}">${ic(svg)}${n}${b ? `<span class="b">${b > 99 ? '99+' : b}</span>` : ''}</button>`).join(''); }
+  bar.addEventListener('click', e => { const b = e.target.closest('[data-mb]'); if (!b) return; const id = b.dataset.mb;
+    if (id === 'menu') return document.querySelector('[data-act="menu"]')?.click(); if (id === 'mais') return rapidas(); ir(id); });
+  function rapidas() { const ac = [['nova', 'Nova venda', ICS.vendas], ['simulador', 'Simular parcelas', ICS.sim], ['emprestimos', 'Empréstimo', ICS.emp], ['caixa', 'Caixa do dia', ICS.caixa], ['fila', 'Cobrança da loja', ICS.fila], ['despesas', 'Lançar despesa', ICS.despesa], ['estoque', 'Estoque', ICS.estoque], ['preanalises', 'Pré-análises', ICS.pre]].filter(([t]) => tem(t));
+    const ativar = 'Notification' in window && Notification.permission !== 'granted';
+    const d = document.createElement('div'); d.id = 'qa'; d.innerHTML = `<div class="sh"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:16px">Ações rápidas</b><button data-q="x" style="border:0;background:none;font-size:22px;line-height:1;cursor:pointer;color:#6B7390" aria-label="Fechar">×</button></div>
+      <div class="gq">${ac.map(([t, n, s]) => `<button data-q="${t}">${ic(s)}${n}</button>`).join('')}${ativar ? `<button data-q="avisos">${ic(ICS.aviso)}Ativar avisos</button>` : ''}</div></div>`;
+    d.addEventListener('click', e => { if (e.target === d) return d.remove(); const b = e.target.closest('[data-q]'); if (!b) return; d.remove(); const q = b.dataset.q; if (q === 'x') return; if (q === 'avisos') return typeof ativarAvisos === 'function' && ativarAvisos(); ir(q); });
+    document.body.appendChild(d); }
+  { const _r = render; render = async function () { pintar(); return _r.apply(this, arguments); }; }
+  const atualizar = async () => { try { if (S.me) { pend = await contarPendencias(); pintar(); } } catch (e) { } };
+  setTimeout(atualizar, 2500); setInterval(atualizar, 120e3); pintar();
+  /* instalar como aplicativo */
+  let evt = null; const instalado = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  const fechado = () => { try { return +localStorage.getItem('nxc_inst_x') > Date.now(); } catch (e) { return false; } };
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  function banner() { if (instalado() || fechado() || document.getElementById('instB') || innerWidth > 820) return; if (!evt && !ios) return;
+    const d = document.createElement('div'); d.id = 'instB'; d.innerHTML = `<div style="flex:1"><b>Instale o app do gerente</b>${ios ? 'Toque em Compartilhar e depois em "Adicionar à Tela de Início".' : 'Abre direto da tela inicial e recebe os avisos da loja.'}</div>${ios ? '' : '<button class="s" data-i="sim">Instalar</button>'}<button class="x" data-i="x" aria-label="Agora não">Agora não</button>`;
+    d.addEventListener('click', async e => { const b = e.target.closest('[data-i]'); if (!b) return; if (b.dataset.i === 'sim' && evt) { evt.prompt(); await evt.userChoice.catch(() => { }); evt = null; } else { try { localStorage.setItem('nxc_inst_x', Date.now() + 7 * 864e5); } catch (e) { } } d.remove(); });
+    document.body.appendChild(d); }
+  addEventListener('beforeinstallprompt', e => { e.preventDefault(); evt = e; setTimeout(banner, 4000); });
+  addEventListener('appinstalled', () => document.getElementById('instB')?.remove());
+  if (ios) setTimeout(banner, 6000);
+})();
+
 </script>
 </body>
 </html>
