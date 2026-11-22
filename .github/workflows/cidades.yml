@@ -1,0 +1,19 @@
+# Gera de novo as páginas por cidade sempre que o site de vendas muda.
+name: Páginas por cidade
+on:
+  push:
+    branches: [main]
+    paths: ['site.html', 'gerar-cidades.py']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 gerar-cidades.py
+      - run: |
+          git config user.name "nexumcell-bot"; git config user.email "bot@users.noreply.github.com"
+          git add -A crediario-celular-*.html sitemap.xml robots.txt site.html
+          git diff --cached --quiet || (git commit -m "Atualiza as páginas por cidade" && git push)
