@@ -2181,7 +2181,7 @@ async function avisoTravas(){
     const ch=chips.length?`<div class="aviso-trava bad" data-act="verChips">${svg('<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 6h4"/>')}<b>Troca de chip em ${chips.length} aparelho(s)</b><span>Pode ser revenda ou golpe. Clique para conferir.</span></div>`:'';
     const rb=roubos.length?`<div class="aviso-trava bad" data-act="verRoubos">${svg(IC.listanegra)}<b>${roubos.length} cliente(s) comunicaram roubo, furto ou perda</b><span>O aparelho já foi travado. Clique para ver e tratar.</span></div>`:'';
     const dias=S.cfg.ultimoBackup?Math.floor((Date.now()-S.cfg.ultimoBackup)/86400000):999;
-    const bk=can('DONO')&&dias>=7?`<div class="aviso-trava" data-act="go" data-tab="config">${svg(IC.config)}<b>Faça a cópia de segurança da semana</b><span>${S.cfg.ultimoBackup?'Última há '+dias+' dias.':'Nenhuma cópia feita ainda.'} Clique para ir às configurações.</span></div>`:'';
+    const bk=can('DONO')&&PORTAL==='dono'&&dias>=7?`<div class="aviso-trava" data-act="go" data-tab="config">${svg(IC.config)}<b>Faça a cópia de segurança da semana</b><span>${S.cfg.ultimoBackup?'Última há '+dias+' dias.':'Nenhuma cópia feita ainda.'} Clique para ir às configurações.</span></div>`:'';
     let vs=(await loadVendas()).filter(v=>v.status==='INSTALANDO');
     const ss=can('DONO','FINANCEIRO','SUPORTE')?aps.filter(a=>a.status==='ATIVO'&&!a.quitado&&a.checkin?.em&&Date.now()-a.checkin.em>86400000*diasSemSinal()):[];
     const fx=can('DONO','FINANCEIRO','SUPORTE')?aps.filter(a=>a.status==='ATIVO'&&!a.quitado&&foraDoPais(a)):[]; marcarForaDoPais(aps);
@@ -4885,12 +4885,12 @@ PAGES.equipe = async () => {
   <p class="small muted mt">O que cada perfil vê: <b>Vendedor</b> — nova venda, suas vendas, contrato e QR. <b>Gerente</b> — tudo da sua loja, libera 24 h, cadastra vendedores. <b>Financeiro</b> — análise de crédito, baixas, cobrança, trava. <b>Suporte</b> — aparelhos, trava e chamados. <b>Dono</b> — tudo.</p>`;
 };
 function novoUsuario(){
-  const roles=can('DONO')?['VENDEDOR','GERENTE','FINANCEIRO','SUPORTE','DONO']:['VENDEDOR'];
+  const naLoja=PORTAL==='gerente', roles=can('DONO')?(naLoja?['VENDEDOR','GERENTE']:['VENDEDOR','GERENTE','FINANCEIRO','SUPORTE','DONO']):['VENDEDOR'];
   openModal(`<h2>Adicionar pessoa</h2><div class="grid g2">
     <label>Nome completo<input id="uNome"></label><label>E-mail (será o login)<input id="uEmail" type="email"></label><label>Telefone / WhatsApp<input id="uTel" inputmode="tel"></label>
     <label>Senha inicial (a pessoa troca no 1º acesso)<input id="uSenha" type="text" inputmode="numeric" maxlength="6" value="${SENHA_PADRAO}"></label>
     <label>Perfil<select id="uRole">${roles.map(r=>`<option value="${r}">${ROLES[r]}</option>`).join('')}</select></label>
-    <label>Loja<select id="uLoja">${S.lojas.filter(l=>can('DONO')||l.id===S.me.lojaId).map(l=>`<option value="${l.id}">${esc(l.nome)}</option>`).join('')}${can('DONO')?'<option value="">Todas (financeiro/suporte/dono)</option>':''}</select></label></div>
+    <label>Loja<select id="uLoja">${S.lojas.filter(l=>can('DONO')||l.id===S.me.lojaId).map(l=>`<option value="${l.id}">${esc(l.nome)}</option>`).join('')}${can('DONO')&&!naLoja?'<option value="">Todas (financeiro/suporte/dono)</option>':''}</select></label></div>
     <div class="row mt" style="justify-content:flex-end"><button class="btn gold" data-act="salvarUsuario">Criar acesso</button></div>`);
 }
 async function salvarUsuario(btn){
@@ -5259,9 +5259,9 @@ async function emailAuto(para,assunto,texto,titulo){ if(!para||!servLigado()) re
   }
   if(can('DONO')){ // Dono olhando o Portal do Gerente: só gerentes e vendedores das lojas, sem cadastrar
     const us=(await DB.list('users')).filter(u=>['GERENTE','VENDEDOR'].includes(u.role)).sort((a,b)=>lojaNome(a.lojaId).localeCompare(lojaNome(b.lojaId))||a.nome.localeCompare(b.nome));
-    $('#topActions').innerHTML='';
-    $('#view').innerHTML=`<p class="muted" style="margin-top:-4px">Gerentes e vendedores das lojas parceiras. Aprovar, bloquear e mandar acesso é no Painel do Dono → Lojas parceiras.</p><div class="card tablewrap"><table><tr><th>Nome</th><th>ID</th><th>Perfil</th><th>Loja</th><th>Situação</th></tr>
-    ${us.map(u=>`<tr><td><b>${esc(u.nome)}</b></td><td class="mono">${esc(u.codigo||'')}</td><td>${esc(ROLES[u.role])}</td><td>${esc(lojaNome(u.lojaId))}</td><td>${u.lojaBloqueada?badge('Loja bloqueada','red'):u.ativo?badge('Ativo','green'):badge('Inativo','gray')}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Ninguém ainda</td></tr>'}</table></div>`;
+    $('#topActions').innerHTML=(fb?'':'<span class="demo-flag">Modo demonstração</span>')+'<button class="btn gold" data-act="novoUsuario">Adicionar funcionário</button>';
+    $('#view').innerHTML=`<div class="card tablewrap"><table><tr><th>Nome</th><th>ID</th><th>Perfil</th><th>Loja</th><th>Situação</th><th></th></tr>
+    ${us.map(u=>`<tr><td><b>${esc(u.nome)}</b></td><td class="mono">${esc(u.codigo||'')}</td><td>${esc(ROLES[u.role])}</td><td>${esc(lojaNome(u.lojaId))}</td><td>${u.lojaBloqueada?badge('Loja bloqueada','red'):u.ativo?badge('Ativo','green'):badge('Inativo','gray')}</td><td class="right">${u.id!==S.me.uid?`<button class="btn sm" data-act="toggleUser" data-id="${u.id}">${u.ativo?'Desativar':'Reativar'}</button>`:''}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">Ninguém ainda</td></tr>'}</table></div>`;
     return;
   }
   await _e(); if(!can('GERENTE')) return;
@@ -10849,7 +10849,27 @@ ACT.cartLink = () => { const l = linkVendas(); (navigator.clipboard ? navigator.
   DB.set = async function (c, id, d, ...a) { const r = await _se.call(this, c, id, d, ...a); if (d && d.status) limpa(c); return r; }; }
 addEventListener('offline', () => toast('Sem internet: o que você digitar na venda fica guardado neste aparelho.', 'err'));
 
+
+/* Dono no Portal do Gerente: cadastra vendedor ou gerente direto, escolhendo a loja */
+{ const _nu3=novoUsuario; novoUsuario=function(){ if(!(can('DONO')&&PORTAL==='gerente')) return _nu3();
+  openModal(`<h2>Adicionar funcionário</h2><p class="muted" style="margin-top:-6px">O acesso é criado na hora e o ID chega no e-mail da pessoa. Ela troca a senha no primeiro acesso.</p><div class="grid g2">
+    <label>Nome completo<input id="uNome" autocomplete="off"></label><label>E-mail (será o login)<input id="uEmail" type="email" autocomplete="off"></label><label>Telefone / WhatsApp<input id="uTel" inputmode="tel" autocomplete="off"></label>
+    <label>Senha inicial<input id="uSenha" type="text" inputmode="numeric" maxlength="6" value="${SENHA_PADRAO}" autocomplete="off"></label>
+    <label>Cargo<select id="uRole"><option value="VENDEDOR">Vendedor</option><option value="GERENTE">Gerente</option></select></label>
+    <label>Loja<select id="uLoja">${S.lojas.filter(l=>!l.encerrada).map(l=>`<option value="${l.id}">${esc(l.nome)}${l.empresaNome&&l.empresaNome!==l.nome?' · '+esc(l.empresaNome):''}</option>`).join('')}</select></label></div>
+    <div class="row mt" style="justify-content:flex-end"><button class="btn gold" data-act="salvarUsuario">Criar acesso</button></div>`); }; }
+
+
+/* treinamento obrigatório: sem concluir, vendedor e gerente não usam nem veem o sistema (vale em toda tela, não só no login) */
+{ const trancar=()=>{ try{ if(!S.me||!precisaTrilha()) return; if($('#tvPlayer')) return; if(!$('#trilha')) mostrarTrilha(); }catch(e){} };
+  const _rT=render; render=async(...a)=>{ if(S.me&&precisaTrilha()){ trancar(); if(!['treinamento'].includes(S.tab)) S.tab='treinamento'; } return _rT(...a); };
+  new MutationObserver(()=>{ if(S.me&&precisaTrilha()&&!$('#trilha')&&!$('#tvPlayer')) setTimeout(trancar,150); }).observe(document.body,{childList:true});
+  setInterval(trancar,2000);
+  const _go=ACT.go; if(_go) ACT.go=(d,b)=>{ if(S.me&&precisaTrilha()&&d.tab!=='treinamento'){ trancar(); return; } return _go(d,b); };
+}
+
 </script>
-<script>(function(){var b=document.getElementById('dnBusca');function l(){var x=document.getElementById('dnBusca');if(x&&/@/.test(x.value)&&document.activeElement!==x){x.value='';x.dispatchEvent(new Event('input',{bubbles:true}));}}setInterval(l,800);})();</script>
+<script>(function(){var b=document.getElementById('dnBusca');function l(){var x=document.getElementById('dnBusca');if(x&&/@/.test(x.value)&&document.activeElement!==x){x.value='';x.dispatchEvent(new Event('input',{bubbles:true}));}}setInterval(l,800);})();
+</script>
 </body>
 </html>
